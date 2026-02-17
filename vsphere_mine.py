@@ -79,3 +79,18 @@ CFL.add_velocity(u)
 flow = d3.GlobalFlowProperty(solver, cadence=10)
 flow.add_property(np.sqrt(u@u)*Ek, name='Re_n')
 
+#Main loop
+try:
+    logger.info('Starting main loop')
+    while solver.proceed:
+        timestep = CFL.compute_timestep()
+        solver.step(timestep)
+        if (solver.iteration-1) % 10 == 0:
+            max_Re_n = flow.max('Re_n')
+            logger.info("Iteration=%i, Time=%e, dt=%e, max(Re_n)=%e" 
+                        %(solver.iteration, solver.sim_time, timestep, max_Re_n))
+except:
+    logger.error('Exception raised, triggering end of main loop.')
+    raise
+finally:
+    solver.log_stats()
