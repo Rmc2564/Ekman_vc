@@ -105,9 +105,9 @@ s2_avg = lambda A: d3.Average(A, coords.S2coordsys)
 vol_avg = lambda A: d3.Integrate(A/volume, coords)
 
 # define every component of velocity (for output)
-u_n_r = dot(er,u_n)
-u_n_theta = dot(etheta,u_n)
-u_n_phi = dot(ephi,u_n)
+u_n_r = u_n[2]
+u_n_theta = u_n[1]
+u_n_phi = u_n[0]
 
 AZ_avg = solver.evaluator.add_file_handler('AZ_avg', sim_dt=0.025, max_writes=100)
 AZ_avg.add_task(az_avg(dot(er,u_n)), name='u_n_r')
