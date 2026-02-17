@@ -50,6 +50,7 @@ er['g'][2] = 1
 etheta['g'][1] = 1
 ephi['g'][0] = 1
 
+#This is never actually used
 
 ez = dist.VectorField(coords, bases=ball)
 ez['g'][1] = -np.sin(theta)
@@ -92,7 +93,7 @@ use_checkpoint = False
 
 if use_checkpoint:
     write, timestep = solver.load_state('checkpoints/checkpoints_sNumber.h5')
-    
+    #Shouldn't the initial condition be solid body rotation?
 else:
     # Initial condition
     u_n.fill_random('g', seed=42, distribution='normal', scale=1e-10) # Random noise
@@ -107,9 +108,9 @@ s2_avg = lambda A: d3.Average(A, coords.S2coordsys)
 vol_avg = lambda A: d3.Integrate(A/volume, coords)
 
 # define every component of velocity (for output)
-u_n_r = u_n[2]
-u_n_theta = u_n[1]
-u_n_phi = u_n[0]
+u_n_r = dot(u_n,er)
+u_n_theta = dot(u_n,etheta)
+u_n_phi = dot(u_n, ephi)
 
 AZ_avg = solver.evaluator.add_file_handler('AZ_avg', sim_dt=0.025, max_writes=100)
 AZ_avg.add_task(az_avg(dot(er,u_n)), name='u_n_r')
