@@ -65,9 +65,6 @@ uang_R1['g'][0,:] = (Delta_Omega*sintheta)(r=radius).evaluate()['g']
 
 lift = lambda A: d3.Lift(A, ball, -1)
 
-print("uang_R1 shape: {}".format(np.shape(uang_R1)))
-print("u_n shape: {}".format(np.shape(u_n)))
-
 dot = d3.DotProduct
 curl = d3.Curl
 cross = d3.CrossProduct
@@ -111,7 +108,7 @@ vol_avg = lambda A: d3.Integrate(A/volume, coords)
 u_n_r = dot(u_n,er)
 u_n_theta = dot(u_n,etheta)
 u_n_phi = dot(u_n, ephi)
-
+#Why not just save full velocity vector and handle components in plotting/analysis code?
 AZ_avg = solver.evaluator.add_file_handler('AZ_avg', sim_dt=0.025, max_writes=100)
 AZ_avg.add_task(az_avg(dot(er,u_n)), name='u_n_r')
 AZ_avg.add_task(az_avg(dot(etheta,u_n)), name='u_n_theta')
