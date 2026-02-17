@@ -60,3 +60,22 @@ problem.add_equation("integ(p) = 0") #Pressure gauge
 #Solver
 solver = problem.build_solver(PARAMS['timestepper'])
 solver.stop_time = PARAMS["stop_time"]
+
+#Initial conditions
+u.fill_random('g', seed=42, distribution='normal', scale=1e-10)
+u.low_pass_filter(scales=0.5)
+timestep = PARAMS['max_timestep']
+
+#Analysis
+vel = solver.evaluator.add_file_handler('velocity',sim_dt=0.025,max_writes=100)
+vel.add_task(u, name = 'velocity')
+
+#CFL
+CFL = d3.CFL(solver, timestep, cadence=1, safety=0.3,
+              threshold=0.1, max_dt=PARAMS["max_timestep"])
+CFL.add_velocity(u)
+
+#Flow properties
+flow = d3.GlobalFlowProperty(solver, cadence=10)
+flow.add_property(np.sqrt(u@u)*Ek, name='Re_n')
+
