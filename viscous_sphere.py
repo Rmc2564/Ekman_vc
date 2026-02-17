@@ -50,6 +50,7 @@ er['g'][2] = 1
 etheta['g'][1] = 1
 ephi['g'][0] = 1
 
+
 ez = dist.VectorField(coords, bases=ball)
 ez['g'][1] = -np.sin(theta)
 ez['g'][2] = np.cos(theta) # unit vector in z direction
@@ -69,6 +70,7 @@ print("u_n shape: {}".format(np.shape(u_n)))
 dot = d3.DotProduct
 curl = d3.Curl
 cross = d3.CrossProduct
+
 
 omega_n = curl(u_n)
 
