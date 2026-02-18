@@ -49,10 +49,20 @@ lift = lambda A: d3.Lift(A, ball, -1)
 ang_boundary = dist.VectorField(coords, name = 'spup', bases=sphere)
 ang_boundary['g'][0,:] = PARAMS['radius']*np.sin(theta)
 
+#Spherical unit vectors
+er = dist.VectorField(coords)
+etheta = dist.VectorField(coords)
+ephi = dist.VectorField(coords)
+er['g'][2] = 1
+etheta['g'][1] = 1
+ephi['g'][0] = 1
+
+u_phi = u[2]
+
 #Problem
 problem = d3.IVP([u, p, tau_p, tau_u], namespace=locals())
 problem.add_equation("div(u) + tau_p = 0")
-problem.add_equation("dt(u) + grad(p) - Ek*lap(u) + lift(tau_u) = -cross(curl(u),u)")
+problem.add_equation("dt(u) + grad(p) - Ek*lap(u) + lift(tau_u) = -cross(curl(u),u) - u@grad(u)")
 problem.add_equation("radial(u(r=PARAMS['radius'])) = 0") #Impenetrable boundary condition
 problem.add_equation("angular(u(r=PARAMS['radius'])) = angular(ang_boundary)")
 problem.add_equation("integ(p) = 0") #Pressure gauge
@@ -68,7 +78,7 @@ timestep = PARAMS['max_timestep']
 
 #Analysis
 vel = solver.evaluator.add_file_handler('velocity',sim_dt=0.025,max_writes=100)
-vel.add_task(u, name = 'velocity')
+vel.add_task(u_phi, name = 'u_phi')
 
 #CFL
 CFL = d3.CFL(solver, timestep, cadence=1, safety=0.3,

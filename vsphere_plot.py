@@ -17,4 +17,4 @@ u_theta = u_arr[10,-1,0,:,0]
 u_r = u_arr[10,-1,0,0,:]
 
 
-print(np.shape(u_theta))
+print(u_theta)
