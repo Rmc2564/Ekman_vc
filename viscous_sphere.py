@@ -46,9 +46,9 @@ r_vec['g'][2] = r
 er = dist.VectorField(coords)
 etheta = dist.VectorField(coords)
 ephi = dist.VectorField(coords)
-er['g'][0] = 1
+er['g'][2] = 1
 etheta['g'][1] = 1
-ephi['g'][2] = 1
+ephi['g'][0] = 1
 
 #This is never actually used
 
