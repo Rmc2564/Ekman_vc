@@ -2,6 +2,7 @@ import numpy as np
 import dedalus.public as d3
 import logging
 from mpi4py import MPI
+import csv
 logger = logging.getLogger(__name__)
 
 #Parameters
@@ -49,6 +50,16 @@ lift = lambda A: d3.Lift(A, ball, -1)
 ang_boundary = dist.VectorField(coords, name = 'spup', bases=sphere)
 ang_boundary['g'][0,:] = PARAMS['radius']*np.sin(theta)
 
+theta_save = list(theta[0,:,0])
+r_save = list(r[0,0,:])
+#Save theta and r
+rows = [theta_save, r_save]
+
+print(rows)
+
+np.savetxt("Theta.csv", theta_save, delimiter=', ')
+np.savetxt("r.csv", r_save, delimiter=', ')
+
 #Spherical unit vectors
 er = dist.VectorField(coords)
 etheta = dist.VectorField(coords)
@@ -57,7 +68,9 @@ er['g'][2] = 1
 etheta['g'][1] = 1
 ephi['g'][0] = 1
 
-u_phi = u[2]
+u_r = d3.dot(u,er)
+u_theta = d3.dot(u,etheta)
+u_phi = d3.dot(u,ephi)
 
 #Problem
 problem = d3.IVP([u, p, tau_p, tau_u], namespace=locals())
@@ -76,9 +89,13 @@ u.fill_random('g', seed=42, distribution='normal', scale=1e-10)
 u.low_pass_filter(scales=0.5)
 timestep = PARAMS['max_timestep']
 
+print(u_phi['g'] == u['g'][0])
+print(coords.coords)
+quit()
+
 #Analysis
 vel = solver.evaluator.add_file_handler('velocity',sim_dt=0.025,max_writes=100)
-vel.add_task(u_phi, name = 'u_phi')
+vel.add_task(d3.Average(u_phi,coord=coords.coords[0]), name = 'u_phi')
 
 #CFL
 CFL = d3.CFL(solver, timestep, cadence=1, safety=0.3,
