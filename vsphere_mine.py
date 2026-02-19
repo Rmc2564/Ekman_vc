@@ -52,6 +52,7 @@ ang_boundary['g'][0,:] = PARAMS['radius']*np.sin(theta)
 
 theta_save = list(theta[0,:,0])
 r_save = list(r[0,0,:])
+print(r_save)
 #Save theta and r
 rows = [theta_save, r_save]
 
@@ -91,7 +92,6 @@ timestep = PARAMS['max_timestep']
 
 print(u_phi['g'] == u['g'][0])
 print(coords.coords)
-quit()
 
 #Analysis
 vel = solver.evaluator.add_file_handler('velocity',sim_dt=0.025,max_writes=100)
