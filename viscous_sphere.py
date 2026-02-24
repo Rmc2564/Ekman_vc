@@ -68,7 +68,7 @@ omega_R1 = dist.VectorField(coords, bases=ball)(r=radius).evaluate()
 uang_R1['g'][0,:] = (Delta_Omega*sintheta)(r=radius).evaluate()['g']
 omega_R1['g'][2,:] = (Omega_Init + domega)(r=radius).evaluate()['g']
 
-omega_n['g'][2,:] =  Omega_Init
+omega_n['g'][2,:] = Omega_Init
 
 
 lift = lambda A: d3.Lift(A, ball, -1)
@@ -78,11 +78,10 @@ curl = d3.Curl
 cross = d3.CrossProduct
 
 # Problem
-problem = d3.IVP([p_n, u_n, tau_p_n, tau_u_n, omega_n, tau_omega_n], namespace=locals())
+problem = d3.IVP([p_n, u_n, tau_p_n, tau_u_n], namespace=locals())
 problem.add_equation("div(u_n) +tau_p_n = 0")
-problem.add_equation("dt(u_n) + grad(p_n) - Ek*lap(u_n) + lift(tau_u_n) + lift(tau_omega_n)  = -2*cross(omega_n,u_n)")
+problem.add_equation("dt(u_n) + grad(p_n) - Ek*lap(u_n) + lift(tau_u_n)  = -2*cross(omega_n,u_n) - cross(curl(u_n),u_n)")
 problem.add_equation("angular(u_n(r=radius)) = angular(uang_R1)") # spin up at outer boundary
-problem.add_equation("omega_n(r=radius) = omega_R1")
 problem.add_equation("radial(u_n(r=radius)) = 0") # impenetrable bc
 problem.add_equation("integ(p_n) = 0")  # Pressure gauge normal fluid
 
@@ -91,7 +90,6 @@ problem.add_equation("integ(p_n) = 0")  # Pressure gauge normal fluid
 solver = problem.build_solver(timestepper)
 solver.stop_sim_time = stop_sim_time
 #write, initial_timestep  = solver.load_state('checkpoint/checkpoint_s8.h5', -1)
-breakpoint()
 
 use_checkpoint = False
 
