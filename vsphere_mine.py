@@ -50,16 +50,19 @@ lift = lambda A: d3.Lift(A, ball, -1)
 ang_boundary = dist.VectorField(coords, name = 'spup', bases=sphere)
 ang_boundary['g'][0,:] = PARAMS['radius']*np.sin(theta)
 
-theta_save = list(theta[0,:,0])
-r_save = list(r[0,0,:])
-print(r_save)
+
+'''
+Leave commented out if running on more than 1 core as it will overwrite with garbage
+'''
+#theta_save = list(theta[0,:,0])
+#r_save = list(r[0,0,:])
+#print(r_save)
 #Save theta and r
-rows = [theta_save, r_save]
+#rows = [theta_save, r_save]
 
-print(rows)
 
-np.savetxt("Theta.csv", theta_save, delimiter=', ')
-np.savetxt("r.csv", r_save, delimiter=', ')
+#np.savetxt("Theta.csv", theta_save, delimiter=', ')
+#np.savetxt("r.csv", r_save, delimiter=', ')
 
 #Spherical unit vectors
 er = dist.VectorField(coords)
