@@ -10,4 +10,4 @@ parameters['Ek'] = 5e-3
 
 parameters['dealias'] = 3/2
 parameters['stop_sim_time'] = 15
-parameters['Omega_Init'] = 10.0
+parameters['Omega_Init'] = 1.0

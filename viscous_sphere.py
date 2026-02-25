@@ -63,10 +63,8 @@ sintheta['g'] = np.sin(theta)
 domega['g'] = Delta_Omega
 
 uang_R1 = dist.VectorField(coords, bases=ball)(r=radius).evaluate()
-omega_R1 = dist.VectorField(coords, bases=ball)(r=radius).evaluate()
 
 uang_R1['g'][0,:] = (Delta_Omega*sintheta)(r=radius).evaluate()['g']
-omega_R1['g'][2,:] = (Omega_Init + domega)(r=radius).evaluate()['g']
 
 omega_n['g'][1,:] = Omega_Init*-np.sin(theta)
 omega_n['g'][2,:] = Omega_Init*np.cos(theta)
