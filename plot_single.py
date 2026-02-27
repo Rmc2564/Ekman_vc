@@ -51,4 +51,165 @@ def plot_stream(r,theta,vr_n,vtheta_n,density,label=None,clim=[0,0]):
 
     fig.tight_layout()
 
-print(Delta_Omega)
+fig,ax = plt.subplots(1,3,figsize=(16,8),subplot_kw={'projection': 'polar'})
+
+dire = './AZ_avg/AZ_avg_s1.h5'
+data = h5py.File(dire, mode='r')
+u_n_phi = data['tasks']['u_n_phi']
+print(np.shape(u_n_phi))    
+time = np.array(data['scales/sim_time'])  
+theta = u_n_phi.dims[2][0][:].ravel()
+r = u_n_phi.dims[3][0][:].ravel()
+
+j = 10
+
+u_n_phi = data['tasks']['u_n_phi'][j,-1,:,:]
+
+#Convert v_phi to an Angular velocity
+omega=np.zeros((len(theta),len(r)))
+for i in range(len(r)):
+    omega[:,i]=u_n_phi[:,i]/(r[i]*np.sin(theta)[:])
+r_m, theta_m = np.meshgrid(r,theta)
+
+ax[0].pcolormesh(theta_m,r_m,u_n_phi,clim=(0,Delta_Omega),cmap='bone_r',edgecolors='face')
+ax[0].set_theta_zero_location('N')
+ax[0].set_theta_direction(-1)
+ax[0].set_rorigin(0)
+ax[0].set_ylim(r.min(),r.max())
+ax[0].set_thetamin(0)
+ax[0].set_thetamax(180)
+ax[0].grid(False)
+ax[0].set_xticks([])
+ax[0].set_yticks([])
+ax[0].set_title(r'$t =$'+str(time[j])[:4])
+
+
+dire = './AZ_avg/AZ_avg_s3.h5'
+data = h5py.File(dire, mode='r')
+time = np.array(data['scales/sim_time']) 
+u_n_phi = data['tasks']['u_n_phi'][j,-1,:,:]
+
+#Convert v_phi to an Angular velocity
+omega=np.zeros((len(theta),len(r)))
+for i in range(len(r)):
+    omega[:,i]=u_n_phi[:,i]/(r[i]*np.sin(theta)[:])
+r_m, theta_m = np.meshgrid(r,theta)
+
+ax[1].pcolormesh(theta_m,r_m,u_n_phi,clim=(0,Delta_Omega),cmap='bone_r',edgecolors='face')
+ax[1].set_theta_zero_location('N')
+ax[1].set_theta_direction(-1)
+ax[1].set_rorigin(0)
+ax[1].set_ylim(r.min(),r.max())
+ax[1].set_thetamin(0)
+ax[1].set_thetamax(180)
+ax[1].grid(False)
+ax[1].set_xticks([])
+ax[1].set_yticks([])
+ax[1].set_title(r'$t =$'+str(time[j])[:4])
+
+dire = './AZ_avg/AZ_avg_s5.h5'
+data = h5py.File(dire, mode='r')
+time = np.array(data['scales/sim_time']) 
+u_n_phi = data['tasks']['u_n_phi'][j,-1,:,:]
+
+#Convert v_phi to an Angular velocity
+omega=np.zeros((len(theta),len(r)))
+for i in range(len(r)):
+    omega[:,i]=u_n_phi[:,i]/(r[i]*np.sin(theta)[:])
+r_m, theta_m = np.meshgrid(r,theta)
+
+ax[2].pcolormesh(theta_m,r_m,u_n_phi,clim=(0,Delta_Omega),cmap='bone_r',edgecolors='face')
+ax[2].set_theta_zero_location('N')
+ax[2].set_theta_direction(-1)
+ax[2].set_rorigin(0)
+ax[2].set_ylim(r.min(),r.max())
+ax[2].set_thetamin(0)
+ax[2].set_thetamax(180)
+ax[2].grid(False)
+ax[2].set_xticks([])
+ax[2].set_yticks([])
+ax[2].set_title(r'$t =$'+str(time[j])[:4])
+
+#plt.savefig("Velocity_early.png")
+
+fig,ax = plt.subplots(1,3,figsize=(16,8),subplot_kw={'projection': 'polar'})
+
+dire = './AZ_avg/AZ_avg_s6.h5'
+data = h5py.File(dire, mode='r')
+u_n_phi = data['tasks']['u_n_phi']    
+time = np.array(data['scales/sim_time'])  
+theta = u_n_phi.dims[2][0][:].ravel()
+r = u_n_phi.dims[3][0][:].ravel()
+
+j = 10
+
+u_n_phi = data['tasks']['u_n_phi'][j,-1,:,:]
+
+#Convert v_phi to an Angular velocity
+omega=np.zeros((len(theta),len(r)))
+for i in range(len(r)):
+    omega[:,i]=u_n_phi[:,i]/(r[i]*np.sin(theta)[:])
+r_m, theta_m = np.meshgrid(r,theta)
+
+ax[0].pcolormesh(theta_m,r_m,u_n_phi,clim=(0,Delta_Omega),cmap='bone_r',edgecolors='face')
+ax[0].set_theta_zero_location('N')
+ax[0].set_theta_direction(-1)
+ax[0].set_rorigin(0)
+ax[0].set_ylim(r.min(),r.max())
+ax[0].set_thetamin(0)
+ax[0].set_thetamax(180)
+ax[0].grid(False)
+ax[0].set_xticks([])
+ax[0].set_yticks([])
+ax[0].set_title(r'$t =$'+str(time[j])[:4])
+
+
+dire = './AZ_avg/AZ_avg_s5.h5'
+data = h5py.File(dire, mode='r')
+time = np.array(data['scales/sim_time']) 
+u_n_phi = data['tasks']['u_n_phi'][j,-1,:,:]
+
+#Convert v_phi to an Angular velocity
+omega=np.zeros((len(theta),len(r)))
+for i in range(len(r)):
+    omega[:,i]=u_n_phi[:,i]/(r[i]*np.sin(theta)[:])
+r_m, theta_m = np.meshgrid(r,theta)
+
+ax[1].pcolormesh(theta_m,r_m,u_n_phi,clim=(0,Delta_Omega),cmap='bone_r',edgecolors='face')
+ax[1].set_theta_zero_location('N')
+ax[1].set_theta_direction(-1)
+ax[1].set_rorigin(0)
+ax[1].set_ylim(r.min(),r.max())
+ax[1].set_thetamin(0)
+ax[1].set_thetamax(180)
+ax[1].grid(False)
+ax[1].set_xticks([])
+ax[1].set_yticks([])
+ax[1].set_title(r'$t =$'+str(time[j])[:4])
+
+dire = './AZ_avg/AZ_avg_s6.h5'
+data = h5py.File(dire, mode='r')
+time = np.array(data['scales/sim_time']) 
+u_n_phi = data['tasks']['u_n_phi'][j,-1,:,:]
+
+#Convert v_phi to an Angular velocity
+omega=np.zeros((len(theta),len(r)))
+for i in range(len(r)):
+    omega[:,i]=u_n_phi[:,i]/(r[i]*np.sin(theta)[:])
+r_m, theta_m = np.meshgrid(r,theta)
+
+ax[2].pcolormesh(theta_m,r_m,u_n_phi,clim=(0,Delta_Omega),cmap='bone_r',edgecolors='face')
+ax[2].set_theta_zero_location('N')
+ax[2].set_theta_direction(-1)
+ax[2].set_rorigin(0)
+ax[2].set_ylim(r.min(),r.max())
+ax[2].set_thetamin(0)
+ax[2].set_thetamax(180)
+ax[2].grid(False)
+ax[2].set_xticks([])
+ax[2].set_yticks([])
+ax[2].set_title(r'$t =$'+str(time[j])[:4])
+
+plt.savefig("velocity_late.png")
+
+plt.show()
