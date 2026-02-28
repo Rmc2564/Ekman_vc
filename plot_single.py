@@ -210,6 +210,6 @@ ax[2].set_xticks([])
 ax[2].set_yticks([])
 ax[2].set_title(r'$t =$'+str(time[j])[:4])
 
-plt.savefig("velocity_late.png")
+#plt.savefig("velocity_late.png")
 
 plt.show()
