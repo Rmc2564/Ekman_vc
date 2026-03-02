@@ -112,8 +112,8 @@ vol_avg = lambda A: d3.Integrate(A/volume, coords)
 u_n_r = dot(u_n,er)
 u_n_theta = dot(u_n,etheta)
 u_n_phi = dot(u_n, ephi)
-#Why not just save full velocity vector and handle components in plotting/analysis code?
-AZ_avg = solver.evaluator.add_file_handler('AZ_avg', sim_dt=0.025, max_writes=100)
+
+AZ_avg = solver.evaluator.add_file_handler('AZ_avg', sim_dt=0.015, max_writes=100)
 AZ_avg.add_task(dot(er,u_n), name='u_n_r')
 AZ_avg.add_task(dot(etheta,u_n), name='u_n_theta')
 AZ_avg.add_task(dot(ephi,u_n), name='u_n_phi')
