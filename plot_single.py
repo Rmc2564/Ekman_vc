@@ -104,14 +104,12 @@ j=10
 
 path_1 = './AZ_avg/AZ_avg_s1.h5'
 plot_angular(path_1,10,ax[0])
-path_2 = './AZ_avg/AZ_avg_s3.h5'
-plot_angular(path_2,10,ax[1])
+path_2 = './AZ_avg/AZ_avg_s4.h5'
+plot_angular(path_2,40,ax[1])
 path_3 ='./AZ_avg/AZ_avg_s6.h5'
 plot_angular(path_3,10,ax[2])
 plt.savefig("Angular_speeds.png")
 plt.close()
-
-j = 10
 
 file_list = sorted(os.listdir('./AZ_avg'))
 
@@ -121,22 +119,30 @@ for file in file_list:
     path = "./AZ_avg/"+file
     path_list.append(path)
 
-omega_rs = []
-times = []
-print(file_list)
-for path in path_list:
-    data = h5py.File(path, mode='r')
-    time = np.array(data['scales/sim_time'])
-    r, theta = coords_angular(path)
-    u_n_phi = data['tasks']['u_n_phi'][j,-1,:,:]
-    omega = get_angular(r, theta, u_n_phi)
-    omega_r = omega[32][30]
-    omega_rs.append(omega_r)
-    times.append(time[j])
-    
+def angular_time(r_get: int, n_writes: int) -> np.ndarray | np.ndarray:
+    omega_rs = []
+    times = []
+    for path in path_list:
+        data = h5py.File(path, mode='r')
+        time = np.array(data['scales/sim_time'])
+        r, theta = coords_angular(path)
+        for j in range(0,n_writes):
+            u_n_phi = data['tasks']['u_n_phi'][j,-1,:,:]
+            omega = get_angular(r, theta, u_n_phi)
+            omega_r = omega[32][r_get]
+            omega_rs.append(omega_r)
+            times.append(time[j])
+    return omega_rs, times
 
-print(np.shape(omega_rs))
-print(np.shape(times))
+path = path_list[0]
+r_check, theta = coords_angular(path)
+print(len(r_check))
 
-plt.plot(sorted(times),sorted(omega_rs),linewidth=2.0)
+r_tries = [i for i in range(25,len(r_check),6)]
+for val in r_tries:
+    omega_r, times = angular_time(val, 100)
+    plt.plot(sorted(times), sorted(omega_r))
+
+t_ek = 1/np.sqrt(Ek)
+plt.axvline(x=t_ek, linestyle='dashed', color = 'black')
 plt.show()

@@ -9,5 +9,5 @@ parameters['Delta_Omega'] = 1e-3
 parameters['Ek'] = 5e-3
 
 parameters['dealias'] = 3/2
-parameters['stop_sim_time'] = 250
+parameters['stop_sim_time'] = 30
 parameters['Omega_Init'] = 1.0

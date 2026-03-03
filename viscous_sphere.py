@@ -19,6 +19,7 @@ max_timestep = 1e-2
 dtype = np.float64
 ncpu = MPI.COMM_WORLD.size
 log2 = np.log2(ncpu)
+
 if log2 == int(log2):
     mesh = [int(2**np.ceil(log2/2)),int(2**np.floor(log2/2))]
 logger.info("running on processor mesh={}".format(mesh))
@@ -79,7 +80,7 @@ cross = d3.CrossProduct
 # Problem
 problem = d3.IVP([p_n, u_n, tau_p_n, tau_u_n], namespace=locals())
 problem.add_equation("div(u_n) +tau_p_n = 0")
-problem.add_equation("dt(u_n) + grad(p_n) - Ek*lap(u_n) + lift(tau_u_n)  = -2*cross(omega_n,u_n) - cross(curl(u_n),u_n)")
+problem.add_equation("dt(u_n) + grad(p_n) - 2*Ek*lap(u_n) + lift(tau_u_n)  = -2*cross(omega_n,u_n)")
 problem.add_equation("angular(u_n(r=radius)) = angular(uang_R1)") # spin up at outer boundary
 problem.add_equation("radial(u_n(r=radius)) = 0") # impenetrable bc
 problem.add_equation("integ(p_n) = 0")  # Pressure gauge normal fluid
@@ -113,7 +114,7 @@ u_n_r = dot(u_n,er)
 u_n_theta = dot(u_n,etheta)
 u_n_phi = dot(u_n, ephi)
 
-AZ_avg = solver.evaluator.add_file_handler('AZ_avg', sim_dt=0.015, max_writes=100)
+AZ_avg = solver.evaluator.add_file_handler('AZ_avg', sim_dt=0.05, max_writes=100)
 AZ_avg.add_task(dot(er,u_n), name='u_n_r')
 AZ_avg.add_task(dot(etheta,u_n), name='u_n_theta')
 AZ_avg.add_task(dot(ephi,u_n), name='u_n_phi')
