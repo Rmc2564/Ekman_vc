@@ -42,8 +42,10 @@ tau_omega_n = dist.VectorField(coords, name = 'tau_omega_n', bases = sphere)
 
 # Substitutions
 phi, theta, r = dist.local_grids(ball)
-r_vec = dist.VectorField(coords, bases=ball.radial_basis)
+r_vec = dist.VectorField(coords, bases=ball)
 r_vec['g'][2] = r
+r_vec['g'][1] = theta
+r_vec['g'][0] = phi
 er = dist.VectorField(coords)
 etheta = dist.VectorField(coords)
 ephi = dist.VectorField(coords)
@@ -77,10 +79,11 @@ dot = d3.DotProduct
 curl = d3.Curl
 cross = d3.CrossProduct
 
+
 # Problem
 problem = d3.IVP([p_n, u_n, tau_p_n, tau_u_n], namespace=locals())
 problem.add_equation("div(u_n) + tau_p_n = 0")
-problem.add_equation("dt(u_n) + grad(p_n) - 2*Ek*lap(u_n) + lift(tau_u_n)  = -u_n@grad(u_n) - 2*cross(omega_n,u_n) - cross(curl(u_n),u_n)")
+problem.add_equation("dt(u_n) + grad(p_n) - Ek*lap(u_n) + lift(tau_u_n)  = -u_n@grad(u_n) - 2*cross(omega_n,u_n) - cross(curl(u_n),u_n) - cross(curl(u_n),cross(curl(u_n),r_vec))")
 problem.add_equation("angular(u_n(r=radius)) = angular(uang_R1)") # spin up at outer boundary
 problem.add_equation("radial(u_n(r=radius)) = 0") # impenetrable bc
 problem.add_equation("integ(p_n) = 0")  # Pressure gauge normal fluid

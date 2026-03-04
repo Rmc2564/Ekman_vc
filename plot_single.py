@@ -99,18 +99,18 @@ def plot_angular(path: str, j: int, ax: matplotlib.projections.polar.PolarAxes) 
 Plots angular velocity at different times.
 '''
 
-fig,ax = plt.subplots(1,3,figsize=(16,8),subplot_kw={'projection': 'polar'})
+fig,ax = plt.subplots(1,2,figsize=(16,8),subplot_kw={'projection': 'polar'})
 j=10
 
 path_1 = './AZ_avg/AZ_avg_s1.h5'
 plot_angular(path_1,10,ax[0])
 path_2 = './AZ_avg/AZ_avg_s1.h5'
-plot_angular(path_2,60,ax[1])
-path_3 ='./AZ_avg/AZ_avg_s6.h5'
-plot_angular(path_3,10,ax[2])
-plt.savefig("Angular_speeds.png")
+plot_angular(path_2,50,ax[1])
+#path_3 ='./AZ_avg/AZ_avg_s6.h5'
+#plot_angular(path_3,10,ax[2])
+plt.show()
 plt.close()
-
+quit()
 file_list = sorted(os.listdir('./AZ_avg'))
 
 path_list = []
