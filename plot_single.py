@@ -66,7 +66,7 @@ def get_angular(rs: np.ndarray, thetas: np.ndarray, u_phi: np.ndarray) -> np.nda
         omega[:,i]=u_phi[:,i]/(rs[i]*np.sin(thetas)[:])
     return omega
 
-def plot_angular(path: str, j: int, ax: matplotlib.projections.polar.PolarAxes) -> None:
+def plot_angular(path: str, t: int, ax: matplotlib.projections.polar.PolarAxes, rotating: bool) -> None:
     
     '''
     Takes an output of viscous_sphere.py and plots the angular velocity.
@@ -76,13 +76,20 @@ def plot_angular(path: str, j: int, ax: matplotlib.projections.polar.PolarAxes) 
     :param ax: Pre-defined matplotlib polar axis on which to plot the data.
     '''
     data = h5py.File(path, mode='r')
-    u_n_phi = data['tasks']['u_n_phi'][j,-1,:,:]
+    u_n_phi = data['tasks']['u_n_phi'][t,-1,:,:]
     r, theta = coords_angular(path)
     
+    
+    if not rotating:
+        for i in range(len(r)):
+            for j in range(len(theta)):
+                u_n_phi[j,i] -= Omega_Init*r[i]*np.sin(theta[j])
+        u_n_phi = u_n_phi
+    print(u_n_phi[0])
     omega=get_angular(r,theta,u_n_phi)
-    r_m, theta_m = np.meshgrid(r,theta)
 
     time = np.array(data['scales/sim_time'])
+    r_m, theta_m = np.meshgrid(r, theta)
     ax.pcolormesh(theta_m,r_m,omega,clim=(0,Delta_Omega),cmap='RdBu_r',edgecolors='face')
     ax.set_theta_zero_location('N')
     ax.set_theta_direction(-1)
@@ -93,24 +100,27 @@ def plot_angular(path: str, j: int, ax: matplotlib.projections.polar.PolarAxes) 
     ax.grid(False)
     ax.set_xticks([])
     ax.set_yticks([])
-    ax.set_title(r'$t =$'+str(time[j])[:4])
+    ax.set_title(r'$t =$'+str(time[t])[:4])
 
 '''
 Plots angular velocity at different times.
 '''
 
-fig,ax = plt.subplots(1,2,figsize=(16,8),subplot_kw={'projection': 'polar'})
-j=10
+fig,ax = plt.subplots(1,3,figsize=(16,8),subplot_kw={'projection': 'polar'})
 
 path_1 = './AZ_avg/AZ_avg_s1.h5'
-plot_angular(path_1,10,ax[0])
+p1 = plot_angular(path_1,10,ax[0],rotating=False)
+
+
 path_2 = './AZ_avg/AZ_avg_s1.h5'
-plot_angular(path_2,50,ax[1])
-#path_3 ='./AZ_avg/AZ_avg_s6.h5'
-#plot_angular(path_3,10,ax[2])
+plot_angular(path_2,90,ax[1],rotating=False)
 plt.show()
+'''
+path_3 ='./AZ_avg/AZ_avg_s2.h5'
+plot_angular(path_3,10,ax[2],rotating=True)
+plt.savefig("Angular_5e-3.png")
 plt.close()
-quit()
+
 file_list = sorted(os.listdir('./AZ_avg'))
 
 path_list = []
@@ -152,3 +162,4 @@ t_ek = 1/np.sqrt(Ek)
 plt.axvline(x=t_ek, linestyle='dashed', color = 'black', lw = 0.5)
 plt.text(15, 0.0001,r'$\tau_{Ek}$', size = 'large')
 plt.show()
+'''
