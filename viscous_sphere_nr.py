@@ -54,7 +54,7 @@ sintheta = dist.Field(name='sintheta', bases=ball)
 sintheta['g'] = np.sin(theta)
 rsintheta = dist.Field(name='r_field',bases = ball)
 rsintheta['g'] = r*np.sin(theta)
-
+uang_boundary = dist.VectorField(coords, name='uang_boundary', bases=ball)(r=radius).evaluate()
 lift = lambda A: d3.Lift(A, ball, -1)
 
 dot = d3.DotProduct
@@ -65,6 +65,7 @@ Omega_R = Delta_Omega + Omega_Init
 
 uang_R1 = dist.VectorField(coords, bases=ball)(r=radius).evaluate()
 uang_R1['g'][0,:] = (Omega_R*sintheta)(r=radius).evaluate()['g']
+uang_boundary['g'][0,:] = (Delta_Omega*sintheta)(r=radius).evaluate()['g']
 
 # Problem
 problem = d3.IVP([p_n, u_n, tau_p_n, tau_u_n], namespace=locals())
@@ -79,8 +80,13 @@ solver = problem.build_solver(timestepper)
 solver.stop_sim_time = stop_sim_time
 
 #Initial condition - solid body rotation
+u_n.fill_random('g', seed=42, distribution='normal', scale=1e-10) # Random noise
+u_n.low_pass_filter(scales=0.5)
+u_n['g'][0] += Omega_Init*r*np.sin(theta) 
 
-u_n['g'][0] = r*np.sin(theta) 
+u_n(r=radius)['g'][0] += uang_boundary['g'][0]
+#init_check
+
 
 #Analysis
 
@@ -94,10 +100,11 @@ u_n_r = dot(u_n,er)
 u_n_theta = dot(u_n,etheta)
 u_n_phi = dot(u_n, ephi)
 
+
 AZ_avg = solver.evaluator.add_file_handler('AZ_avg', sim_dt=0.05, max_writes=100)
 AZ_avg.add_task(az_avg(dot(er,u_n)), name='u_n_r')
 AZ_avg.add_task(dot(etheta,u_n), name='u_n_theta')
-AZ_avg.add_task(az_avg(u_n_phi), name='u_n_phi')
+AZ_avg.add_task(d3.Average(u_n_phi, coords.coords[0]), name='u_n_phi')
 
 
 slices = solver.evaluator.add_file_handler('slices', sim_dt=0.025, max_writes=100)
