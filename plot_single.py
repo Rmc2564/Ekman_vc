@@ -66,7 +66,7 @@ def get_angular(rs: np.ndarray, thetas: np.ndarray, u_phi: np.ndarray) -> np.nda
         omega[:,i]=u_phi[:,i]/(rs[i]*np.sin(thetas)[:])
     return omega
 
-def plot_angular(path: str, j: int, ax: matplotlib.projections.polar.PolarAxes) -> None:
+def plot_angular(path: str, t: int, ax: matplotlib.projections.polar.PolarAxes, rotating: bool) -> None:
     
     '''
     Takes an output of viscous_sphere.py and plots the angular velocity.
@@ -76,13 +76,20 @@ def plot_angular(path: str, j: int, ax: matplotlib.projections.polar.PolarAxes) 
     :param ax: Pre-defined matplotlib polar axis on which to plot the data.
     '''
     data = h5py.File(path, mode='r')
-    u_n_phi = data['tasks']['u_n_phi'][j,-1,:,:]
+    u_n_phi = data['tasks']['u_n_phi'][t,-1,:,:]
     r, theta = coords_angular(path)
+    print(r)
+    print(u_n_phi[30,-1] - Omega_Init*r[-1]*np.sin(theta[30]))
+    u_n_background = np.zeros_like(u_n_phi)
+    if not rotating:
+       for i in range(len(r)):
+        u_n_background[:,i]= Omega_Init*(r[i]*np.sin(theta)[:])
     
-    omega=get_angular(r,theta,u_n_phi)
-    r_m, theta_m = np.meshgrid(r,theta)
+    du_n_phi = u_n_phi - u_n_background
+    omega=get_angular(r,theta,du_n_phi)
 
     time = np.array(data['scales/sim_time'])
+    r_m, theta_m = np.meshgrid(r, theta)
     ax.pcolormesh(theta_m,r_m,omega,clim=(0,Delta_Omega),cmap='RdBu_r',edgecolors='face')
     ax.set_theta_zero_location('N')
     ax.set_theta_direction(-1)
@@ -93,23 +100,25 @@ def plot_angular(path: str, j: int, ax: matplotlib.projections.polar.PolarAxes) 
     ax.grid(False)
     ax.set_xticks([])
     ax.set_yticks([])
-    ax.set_title(r'$t =$'+str(time[j])[:4])
+    ax.set_title(r'$t =$'+str(time[t])[:4])
 
 '''
 Plots angular velocity at different times.
 '''
 
 fig,ax = plt.subplots(1,3,figsize=(16,8),subplot_kw={'projection': 'polar'})
-j=10
 
 path_1 = './AZ_avg/AZ_avg_s1.h5'
-plot_angular(path_1,10,ax[0])
+p1 = plot_angular(path_1,10,ax[0],rotating=True)
+
+
 path_2 = './AZ_avg/AZ_avg_s1.h5'
-plot_angular(path_2,60,ax[1])
-path_3 ='./AZ_avg/AZ_avg_s6.h5'
-plot_angular(path_3,10,ax[2])
-plt.savefig("Angular_speeds.png")
-plt.close()
+plot_angular(path_2,80,ax[1],rotating=True)
+
+path_3 ='./AZ_avg/AZ_avg_s2.h5'
+plot_angular(path_3,10,ax[2],rotating=True)
+#plt.savefig("Angular_5e-3.png")
+plt.show()
 
 file_list = sorted(os.listdir('./AZ_avg'))
 
@@ -129,7 +138,7 @@ def angular_time(r_get: int, n_writes: int) -> np.ndarray | np.ndarray:
         for j in range(0,n_writes):
             u_n_phi = data['tasks']['u_n_phi'][j,-1,:,:]
             omega = get_angular(r, theta, u_n_phi)
-            omega_r = omega[32][r_get]
+            omega_r = omega[63][r_get]
             omega_rs.append(omega_r)
             times.append(time[j])
     return omega_rs, times
@@ -151,4 +160,6 @@ plt.legend(frameon=False)
 t_ek = 1/np.sqrt(Ek)
 plt.axvline(x=t_ek, linestyle='dashed', color = 'black', lw = 0.5)
 plt.text(15, 0.0001,r'$\tau_{Ek}$', size = 'large')
-plt.show()
+plt.xlabel('Time since glitch ($\Omega_{0}^{-1}$)')
+plt.ylabel("$\Delta \Omega$")
+plt.savefig("spin_up_time_rf.png", dpi=300)
