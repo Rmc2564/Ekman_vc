@@ -109,17 +109,16 @@ Plots angular velocity at different times.
 fig,ax = plt.subplots(1,3,figsize=(16,8),subplot_kw={'projection': 'polar'})
 
 path_1 = './AZ_avg/AZ_avg_s1.h5'
-p1 = plot_angular(path_1,0,ax[0],rotating=False)
+p1 = plot_angular(path_1,10,ax[0],rotating=True)
 
 
 path_2 = './AZ_avg/AZ_avg_s1.h5'
-plot_angular(path_2,1,ax[1],rotating=False)
-plt.show()
-'''
+plot_angular(path_2,80,ax[1],rotating=True)
+
 path_3 ='./AZ_avg/AZ_avg_s2.h5'
 plot_angular(path_3,10,ax[2],rotating=True)
-plt.savefig("Angular_5e-3.png")
-plt.close()
+#plt.savefig("Angular_5e-3.png")
+plt.show()
 
 file_list = sorted(os.listdir('./AZ_avg'))
 
@@ -139,7 +138,7 @@ def angular_time(r_get: int, n_writes: int) -> np.ndarray | np.ndarray:
         for j in range(0,n_writes):
             u_n_phi = data['tasks']['u_n_phi'][j,-1,:,:]
             omega = get_angular(r, theta, u_n_phi)
-            omega_r = omega[32][r_get]
+            omega_r = omega[63][r_get]
             omega_rs.append(omega_r)
             times.append(time[j])
     return omega_rs, times
@@ -161,7 +160,6 @@ plt.legend(frameon=False)
 t_ek = 1/np.sqrt(Ek)
 plt.axvline(x=t_ek, linestyle='dashed', color = 'black', lw = 0.5)
 plt.text(15, 0.0001,r'$\tau_{Ek}$', size = 'large')
-plt.xlabel(r'Time since glitch ($\Omega_{0}^{-1}$)')
+plt.xlabel('Time since glitch ($\Omega_{0}^{-1}$)')
 plt.ylabel("$\Delta \Omega$")
-plt.savefig("spin_up_time.png")
-'''
+plt.savefig("spin_up_time_rf.png", dpi=300)
