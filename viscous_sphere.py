@@ -4,7 +4,7 @@ import dedalus.public as d3
 import logging
 from mpi4py import MPI
 logger = logging.getLogger(__name__)
-
+import matplotlib.pyplot as plt
 
 # Parameters - load in from parameter file
 
@@ -19,6 +19,7 @@ max_timestep = 1e-2
 dtype = np.float64
 ncpu = MPI.COMM_WORLD.size
 log2 = np.log2(ncpu)
+
 
 if log2 == int(log2):
     mesh = [int(2**np.ceil(log2/2)),int(2**np.floor(log2/2))]
@@ -39,7 +40,7 @@ omega_n = dist.VectorField(coords, name = 'omega_n', bases = ball)
 tau_p_n = dist.Field(name='tau_p_n')
 tau_u_n = dist.VectorField(coords, name='tau_u_n', bases=sphere)
 tau_omega_n = dist.VectorField(coords, name = 'tau_omega_n', bases = sphere)
-
+u_n_boundary = dist.VectorField(coords, name = 'u_n_boundary', bases=sphere)
 # Substitutions
 phi, theta, r = dist.local_grids(ball)
 
@@ -60,10 +61,23 @@ ez = dist.VectorField(coords, bases=ball)
 ez['g'][1] = -np.sin(theta)
 ez['g'][2] = np.cos(theta) # unit vector in z direction
 
+def window(coord, width):
+    a = width/2
+    shift = np.pi/2*np.ones_like(coord)
+    coord = coord - shift
+    mask =  np.tanh((coord + a)/0.1) - np.tanh((coord - a)/0.1)
+    return mask
+
+theta_plot = np.squeeze(theta)
+
+
 # This field is for the Boundary Conditions
 sintheta = dist.Field(name='sintheta', bases=ball)
+mask = dist.Field(name='mask',bases=sphere.latitude_basis)
 domega = dist.Field(name = 'domega', bases=ball)
 sintheta['g'] = np.sin(theta)
+mask['g'] = window(theta, 0.5)
+
 domega['g'] = Delta_Omega
 
 uang_R1 = dist.VectorField(coords, bases=ball)(r=radius).evaluate()
@@ -73,18 +87,17 @@ uang_R1['g'][0,:] = (Delta_Omega*sintheta)(r=radius).evaluate()['g']
 omega_n['g'][1,:] = Omega_Init*-np.sin(theta)
 omega_n['g'][2,:] = Omega_Init*np.cos(theta)
 
-
 lift = lambda A: d3.Lift(A, ball, -1)
+boundary_product = (mask*(u_n(r=radius) - uang_R1)).evaluate()
 
 dot = d3.DotProduct
 curl = d3.Curl
 cross = d3.CrossProduct
 
-
 problem = d3.IVP([p_n, u_n, tau_p_n, tau_u_n], namespace=locals())
-problem.add_equation("div(u_n) +tau_p_n = 0")
+problem.add_equation("div(u_n) + tau_p_n = 0")
 problem.add_equation("dt(u_n) + grad(p_n) - Ek*lap(u_n) + lift(tau_u_n)  = -u_n@grad(u_n) -2*cross(omega_n,u_n) - cross(curl(u_n),u_n)")
-problem.add_equation("angular(u_n(r=radius)) = angular(uang_R1)") # spin up at outer boundary
+problem.add_equation("mask*angular(uang_R1) = mask*angular(u_n(r=radius))") # spin up at outer boundary
 problem.add_equation("radial(u_n(r=radius)) = 0") # impenetrable bc
 problem.add_equation("integ(p_n) = 0")  # Pressure gauge normal fluid
 
@@ -92,9 +105,8 @@ problem.add_equation("integ(p_n) = 0")  # Pressure gauge normal fluid
 solver = problem.build_solver(timestepper)
 solver.stop_sim_time = stop_sim_time
 #write, initial_timestep  = solver.load_state('checkpoint/checkpoint_s8.h5', -1)
-
 use_checkpoint = False
-
+quit()
 if use_checkpoint:
     write, timestep = solver.load_state('checkpoints/checkpoints_sNumber.h5')
     #Shouldn't the initial condition be solid body rotation?
@@ -103,7 +115,7 @@ else:
     u_n.fill_random('g', seed=42, distribution='normal', scale=1e-10) # Random noise
     u_n.low_pass_filter(scales=0.5)
     timestep = max_timestep
-    
+    u_n(r=radius)['g'] = uang_R1
 # Analysis
 
 volume = (4/3)*np.pi*radius**3
@@ -116,7 +128,7 @@ u_n_r = dot(u_n,er)
 u_n_theta = dot(u_n,etheta)
 u_n_phi = dot(u_n, ephi)
 
-AZ_avg = solver.evaluator.add_file_handler('AZ_avg', sim_dt=0.05, max_writes=100)
+AZ_avg = solver.evaluator.add_file_handler('AZ_avg_equator', sim_dt=0.05, max_writes=100)
 AZ_avg.add_task(dot(er,u_n), name='u_n_r')
 AZ_avg.add_task(dot(etheta,u_n), name='u_n_theta')
 AZ_avg.add_task(az_avg(u_n_phi), name='u_n_phi')

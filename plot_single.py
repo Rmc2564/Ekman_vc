@@ -72,14 +72,12 @@ def plot_angular(path: str, t: int, ax: matplotlib.projections.polar.PolarAxes, 
     Takes an output of viscous_sphere.py and plots the angular velocity.
 
     :param path: Path to an AZ_avg_s*.h5 file.
-    :param j: Integer used to select the time plotted.
+    :param t: Integer used to select the time plotted.
     :param ax: Pre-defined matplotlib polar axis on which to plot the data.
     '''
     data = h5py.File(path, mode='r')
     u_n_phi = data['tasks']['u_n_phi'][t,-1,:,:]
     r, theta = coords_angular(path)
-    print(r)
-    print(u_n_phi[30,-1] - Omega_Init*r[-1]*np.sin(theta[30]))
     u_n_background = np.zeros_like(u_n_phi)
     if not rotating:
        for i in range(len(r)):
@@ -108,19 +106,19 @@ Plots angular velocity at different times.
 
 fig,ax = plt.subplots(1,3,figsize=(16,8),subplot_kw={'projection': 'polar'})
 
-path_1 = './AZ_avg/AZ_avg_s1.h5'
+path_1 = './AZ_avg_equator/AZ_avg_equator_s1.h5'
 p1 = plot_angular(path_1,10,ax[0],rotating=True)
 
 
-path_2 = './AZ_avg/AZ_avg_s1.h5'
+path_2 = './AZ_avg_equator/AZ_avg_equator_s2.h5'
 plot_angular(path_2,80,ax[1],rotating=True)
 
-path_3 ='./AZ_avg/AZ_avg_s2.h5'
+path_3 ='./AZ_avg_equator/AZ_avg_equator_s5.h5'
 plot_angular(path_3,10,ax[2],rotating=True)
 #plt.savefig("Angular_5e-3.png")
 plt.show()
 
-file_list = sorted(os.listdir('./AZ_avg'))
+file_list = sorted(os.listdir('./AZ_avg_equator'))
 
 path_list = []
 for file in file_list:
@@ -162,4 +160,21 @@ plt.axvline(x=t_ek, linestyle='dashed', color = 'black', lw = 0.5)
 plt.text(15, 0.0001,r'$\tau_{Ek}$', size = 'large')
 plt.xlabel('Time since glitch ($\Omega_{0}^{-1}$)')
 plt.ylabel("$\Delta \Omega$")
-plt.savefig("spin_up_time_rf.png", dpi=300)
+plt.show()
+#plt.savefig("spin_up_time_equator.png", dpi=300)
+
+'''
+num_files = len(path_list)
+count = 0
+for i in range(0,num_files):
+    path = path_list[i]
+    data = h5py.File(path, mode='r')
+    time = np.array(data['scales/sim_time'])
+    for j in range(0,len(time)):
+        fig, ax = plt.subplots(1,1,figsize=(16,8),subplot_kw={'projection': 'polar'})
+        plot_angular(path,j,ax,True)
+        plt.savefig("frames/rotating_t_%04d.png" % count)
+        count = count+1
+        if count % 20 == 0:
+            print("saved frame %04d.png" % count)
+'''
